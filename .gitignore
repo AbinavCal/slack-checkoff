@@ -1,0 +1,6 @@
+*.zip
+api_key.json
+credentials.json
+config.js
+**.env
+

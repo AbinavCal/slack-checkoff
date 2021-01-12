@@ -1,0 +1,16 @@
+{
+  "name": "checkoffbot",
+  "version": "1.0.0",
+  "description": "Slack bot for CS70 checkoffs ",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@slack/bolt": "^2.3.0",
+    "googleapis": "^39.2.0"
+  }
+}
