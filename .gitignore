@@ -2,5 +2,6 @@
 api_key.json
 credentials.json
 config.js
+config.json
 **.env
 

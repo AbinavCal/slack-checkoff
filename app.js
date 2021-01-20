@@ -1,7 +1,7 @@
 const { App, ExpressReceiver } = require('@slack/bolt');
 const { google } = require('googleapis');
 
-const config = require('./config.js');
+const config = require("./config.json");
 const expressReceiver = new ExpressReceiver({
   signingSecret: config.SLACK_SIGNING_SECRET
 });
@@ -23,15 +23,12 @@ function getJwt() {
 }
 
 function getApiKey() {
-  var apiKeyFile = require("./api_key.json");
-  return apiKeyFile.key;
+  return config.key;
 }
 
 ///// BOLT.JS LISTENERS FOR SLACK EVENTS /////
-const sheet = '1Io73HIoZa9ETb571-lBp4ivinZSpdGp7tK0mOwNSa_8';
-const TAs = ['U01AUL977NU', 'U01AUUGH0SW', 'U019Y8S4MUY', 'U0198DGCH42', 'U019PFWQ2P2', 'U0195RW7JCC', 'U018WJHDB4P', 'U018Y9P4VEZ', 'U0198DKN8Q2',
-'U01972JJ1C5', 'U0198DGC7S6', 'U019EJYH0JG', 'U018TM1D5QX', 'U0194JVNEEA', 'U0194JVNXB8', 'U01A3DPDTED', 'U018ZSNNQR1', 'U0198DGBY3U', 'U0198DG9A2E',
-'U0198KJ5Y3D', 'U0198DKMXMY', 'U019EJYD004', 'U018WJHDEKZ', 'U0198DGD2LA', 'U019Y8S79FS', 'U01972JLP1B', 'U0198DGCSAW', 'U01972JHG93'];
+const sheet = config.sheet;
+const TAs = config.TAs;
 
 app.command('/checkoff', async ({ command, ack, client, respond }) => {
   try {
