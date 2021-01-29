@@ -169,6 +169,7 @@ function writeSID(jwt, apiKey, sheet, data) {
     range: 'A1',
     auth: jwt,
     key: apiKey,
+    insertDataOption: 'INSERT_ROWS',	
     valueInputOption: 'USER_ENTERED',
     resource: {values: [data]}
   }, (err, res) => {
