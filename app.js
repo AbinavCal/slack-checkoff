@@ -175,51 +175,6 @@ function writeSID(jwt, apiKey, sheet, data) {
   }, (err, res) => {
     (err) ? console.log(err) : console.log("Successful data append");
   });
-
-
-  // let [cell_row, cells] = [-1, [SID, 1]]
-  // sheets.spreadsheets.values.get({
-  //   spreadsheetId: sheet,
-  //   range: 'A2:B',
-  //   auth: jwt,
-  //   key: apiKey
-  // }, (err, res) => {
-  //   if (err) return console.log('The API returned an error: ' + err);
-  //   const rows = res.data.values;
-  //   if (rows.length) {
-  //     cell_row = rows.findIndex((row) => row[0] == cells[0]);
-  //     if (cell_row > -1) {
-  //       console.log("update");
-  //       cells[1] = parseInt(rows[cell_row][1]) + 1;
-  //       sheets.spreadsheets.values.update({
-  //         spreadsheetId: sheet,
-  //         range: `A${cell_row+2}`,
-  //         auth: jwt,
-  //         key: apiKey,
-  //         valueInputOption: 'USER_ENTERED',
-  //         resource: {values: [cells]}
-  //       }, (err, res) => {
-  //         if (err) return console.log('The API returned an error: ' + err);
-  //         console.log('%d cells updated.', res.data.updatedCells);
-  //       });
-  //     } else {
-  //       console.log("append");
-  //       sheets.spreadsheets.values.append({
-  //         spreadsheetId: sheet,
-  //         range: `A1`,
-  //         auth: jwt,
-  //         key: apiKey,
-  //         valueInputOption: 'USER_ENTERED',
-  //         resource: {values: [cells]}
-  //       }, (err, res) => {
-  //         if (err) return console.log('The API returned an error: ' + err);
-  //         console.log('%d cells appended.', res.data.updatedCells);
-  //       });
-  //     }
-  //   } else {
-  //     console.log('No data found.');
-  //   }
-  // });
 }
 
 ///// POS JS DATE FORMATIING /////
