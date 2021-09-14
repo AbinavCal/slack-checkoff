@@ -1,7 +1,10 @@
 *.zip
+**.env
+node_modules
 api_key.json
 credentials.json
 config.js
 config.json
-**.env
+.gitignore
+
 

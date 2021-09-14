@@ -1,6 +1,7 @@
 const { App, ExpressReceiver } = require('@slack/bolt');
 const { google } = require('googleapis');
 
+///// SETUP /////
 const config = require("./config.json");
 const expressReceiver = new ExpressReceiver({
   signingSecret: config.SLACK_SIGNING_SECRET
@@ -11,20 +12,6 @@ const app = new App({
   receiver: expressReceiver
 });
 const expressApp = expressReceiver.app;
-
-
-///// AUTH SETUP FUNCTIONS /////
-function getJwt() {
-  var credentials = require("./credentials.json");
-  return new google.auth.JWT(
-    credentials.client_email, null, credentials.private_key,
-    ['https://www.googleapis.com/auth/spreadsheets']
-  );
-}
-
-function getApiKey() {
-  return config.key;
-}
 
 ///// BOLT.JS LISTENERS FOR SLACK EVENTS /////
 const sheet = config.sheet;
@@ -52,8 +39,10 @@ app.command('/checkoff', async ({ command, ack, client, respond }) => {
       }
     }
     const SID = args[0];
-    await respond({"response_type": "in_channel", "text": `Asking <@${cid}> to check you off...`});
-    await client.chat.postMessage({
+    
+    const responseGrantee = respond({"response_type": "in_channel", "text": `Asking <@${cid}> to check you off...`});
+
+    const responseGranter = client.chat.postMessage({
       "channel": cid,
       "text": `Checkoff request from <@${command.user_id}>`,
       "blocks": [
@@ -93,6 +82,37 @@ app.command('/checkoff', async ({ command, ack, client, respond }) => {
         }
       ]
     });
+
+    await Promise.all([responseGranter, responseGrantee]);
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+app.action('checkoff_no', async ({ body, ack, client }) => {
+  try {
+    await ack();
+    const sender_id = body.actions[0].value;
+    
+    const responseGranter = client.chat.update({
+      "channel": body.container.channel_id,
+      "ts": body.container.message_ts,
+      "text": "Done!",
+      "blocks": body.message.blocks.slice(0, 1).concat({
+          "type": "context",
+          "elements": [{
+             "type": "mrkdwn",
+             "text": "❌ Thanks."
+          }]
+       })
+    });
+    
+    const responseGrantee = client.chat.postMessage({
+      "channel": sender_id,
+      "text": `<@${body.user.id}> denied your checkoff.`
+    });
+
+    await Promise.all([responseGranter, responseGrantee]);
   } catch (error) {
     console.log(error);
   }
@@ -105,11 +125,8 @@ app.action('checkoff_yes', async({ body, ack, client }) => {
     const SID = rets[0];
     const sender_id = rets[1];
     const pos = rets[2];
-    await client.chat.postMessage({
-      "channel": sender_id,
-      "text": `<@${body.user.id}> confirmed your checkoff!`
-    });
-    await client.chat.update({
+    
+    const responseGranter = client.chat.update({
       "channel": body.container.channel_id,
       "ts": body.container.message_ts,
       "text": "Done!",
@@ -121,13 +138,18 @@ app.action('checkoff_yes', async({ body, ack, client }) => {
           }]
        })
     });
-    const email = (await client.users.info({"user": body.user.id})).user.profile.email;
-    const name =  (await client.users.info({"user": sender_id})).user.real_name;
-    var current = new Date();
-    const stamp = current.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }).replace(',','');
-    var jwt = getJwt();
-    var apiKey = getApiKey();
-    writeSID(jwt, apiKey, sheet, [stamp, email, name, SID,
+
+    const responseGrantee = client.chat.postMessage({
+      "channel": sender_id,
+      "text": `<@${body.user.id}> confirmed your checkoff!`
+    });
+
+    await Promise.all([responseGranter, responseGrantee]);
+
+    const profile = (await client.users.info({"user": sender_id})).user.profile
+    const [name, email] = [profile.real_name, profile.email]
+    const stamp = (new Date()).toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }).replace(',','');
+    writeSID(getJwt(), getApiKey(), sheet, [stamp, email, name, SID,
       pos == "RD" ? "Reader" : "Academic Intern",
       pos == "RD" ? "Office Hour" : "Discussion"]);
   } catch (error) {
@@ -135,32 +157,7 @@ app.action('checkoff_yes', async({ body, ack, client }) => {
   }
 });
 
-app.action('checkoff_no', async ({ body, ack, client }) => {
-  try {
-    await ack();
-    const sender_id = body.actions[0].value;
-    await client.chat.postMessage({
-      "channel": sender_id,
-      "text": `<@${body.user.id}> denied your checkoff.`
-    });
-    await client.chat.update({
-      "channel": body.container.channel_id,
-      "ts": body.container.message_ts,
-      "text": "Done!",
-      "blocks": body.message.blocks.slice(0, 1).concat({
-          "type": "context",
-          "elements": [{
-             "type": "mrkdwn",
-             "text": "❌ Thanks."
-          }]
-       })
-    });
-  } catch (error) {
-    console.log(error);
-  }
-});
-
-///// UPDATE CHECKOFF COUNT IN GOOGLE SHEET /////
+///// INSERT CHECKOFF RECORD IN GOOGLE SHEET /////
 function writeSID(jwt, apiKey, sheet, data) {
   const sheets = google.sheets({version: 'v4'});
 
@@ -177,13 +174,26 @@ function writeSID(jwt, apiKey, sheet, data) {
   });
 }
 
+///// AUTH SETUP FUNCTIONS /////
+function getJwt() {
+  var credentials = require("./credentials.json");
+  return new google.auth.JWT(
+    credentials.client_email, null, credentials.private_key,
+    ['https://www.googleapis.com/auth/spreadsheets']
+  );
+}
+
+function getApiKey() {
+  return config.key;
+}
+
 ///// POS JS DATE FORMATIING /////
 const leadingZero = (num) => `0${num}`.slice(-2);
-
 const formatTime = (date) =>
   [date.getHours(), date.getMinutes(), date.getSeconds()]
   .map(leadingZero)
   .join(':');
+
 ///// EXPORT CLOUD FUNCTION /////
 function isOnGoogleCloud() {
   // https://cloud.google.com/functions/docs/env-var#nodejs_10_and_subsequent_runtimes
