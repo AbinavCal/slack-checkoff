@@ -32,11 +32,11 @@ The data is pulled from the Slack profiles of the Granter/Requester.
 7. Get the Google Sheet ID (alphanumeric string after /d/ in URL) of the Google Sheet that will be used to store checkoff records.
 8. Collect the Slack member IDs of users who will be authorized to grant checkoffs *(Profile --> More ---> Copy Member ID)*. 
 9. Create a *'config.js'* file to save key parameters.
-   a. Save the signing secret from (2) as  **SLACK_SIGNING_SECRET**.
-   b. Save the privileged bot token for your app from (3) as **SLACK_BOT_TOKEN**. 
-   c. Save the Google Sheets API key from (6) as **key**.
-   d. Save the Google Sheet ID from (7)  as **sheet**. 
-   e. Save the list of member IDs of authorized granters from (8) as **TAs**.
+    a. Save the signing secret from (2) as  **SLACK_SIGNING_SECRET**.
+    b. Save the privileged bot token for your app from (3) as **SLACK_BOT_TOKEN**. 
+    c. Save the Google Sheets API key from (6) as **key**.
+    d. Save the Google Sheet ID from (7)  as **sheet**. 
+    e. Save the list of member IDs of authorized granters from (8) as **TAs**.
 10. Zip the repo contents. The only modifications should be the new *'credentials.json'* and  *'config.js'* files.
 11. Create a Cloud Function in Google Cloud Console (make sure to use the zip just created as the source code).
 12. Go back to the Slack App and use the Cloud Function URL with '/slack/events' appended to the end as the Interactivity URL.  
