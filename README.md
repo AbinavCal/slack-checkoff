@@ -24,21 +24,25 @@ The data is pulled from the Slack profiles of the Granter/Requester.
 
 ## Implementation 
 1. Download the repo.
-2. Create a new project on Google Cloud Console.
-3. Ensure Google Sheets API v4 is enabled and create a Sheets API key.
-4. Save that key in a file *'api_key.json'* as **key**.
-5. Create a service account for the project, generate the service account credentials, and save it as *'credentials.json'*. 
-6. Create a new Slack App and note the signing secret. 
-7. Generate a bot token with permissions to view user profiles, interact with commands, write direct messages and view direct message histories.
-8. Create a *'config.js'* file to save the project secret as **SLACK_SIGNING_SECRET** and privileged bot token as **SLACK_BOT_TOKEN**. 
-9. Open the record-keeping Google Sheet and share it with the service account email. 
-10. Copy the Google Sheet ID (alphanumeric string after /d/ in URL) into **sheet** in *'app.js'*.
-10. Zip the repo contents. 
-12. Create a Cloud Function in Google Cloud Console (make sure to use the zip just created as the source code).
-13. Go back to the Slack App and use the Cloud Function URL with '/slack/events' appended to the end as the Interactivity URL.  
-14. Enable and create a new slash command, "/checkoff" with the Cloud Function URL with 'slack/events/checkoff' appended to the end as the Request URL.
-15. Use the add-to-Slack button in the deploy folder to add the Slack App to your Slack Workplace
-16. Celebrate! 
+2. Create a new Slack App and note the signing secret. 
+3. Register a bot token with permissions to view user profiles + emails, interact with commands, write direct messages and view direct message histories.
+4. Create a new project on Google Cloud Console.
+5. Create a service account for the project, generate associated service account credentials, and save it as *'credentials.json'*. 
+6. Ensure Google Sheets API v4 is enabled and create a Sheets API key. 
+7. Get the Google Sheet ID (alphanumeric string after /d/ in URL) of the Google Sheet that will be used to store checkoff records.
+8. Collect the Slack member IDs of users who will be authorized to grant checkoffs *(Profile --> More ---> Copy Member ID)*. 
+9. Create a *'config.js'* file to save key parameters.
+   a. Save the signing secret from (2) as  **SLACK_SIGNING_SECRET**.
+   b. Save the privileged bot token for your app from (3) as **SLACK_BOT_TOKEN**. 
+   c. Save the Google Sheets API key from (6) as **key**.
+   d. Save the Google Sheet ID from (7)  as **sheet**. 
+   e. Save the list of member IDs of authorized granters from (8) as **TAs**.
+10. Zip the repo contents. The only modifications should be the new *'credentials.json'* and  *'config.js'* files.
+11. Create a Cloud Function in Google Cloud Console (make sure to use the zip just created as the source code).
+12. Go back to the Slack App and use the Cloud Function URL with '/slack/events' appended to the end as the Interactivity URL.  
+13. Enable and create a new slash command, "/checkoff" with the Cloud Function URL with 'slack/events/checkoff' appended to the end as the Request URL.
+14. Add the Slack App to your Slack workplace. 
+15. Celebrate! 
 
 This process is, as you can see, a bit complicated. If you want to implement this for your own purposes, you will no doubt run into opaque, hair-loss inducing errors. But you don't have to do it alone! I'm always down to help -- reach me at abinavrouthu@berkeley.edu and let's suffer together (:
 ## Known Bugs
